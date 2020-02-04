@@ -1,0 +1,11 @@
+query List {
+  list {
+    ...Book
+  }
+}
+
+query Pages {
+  pages {
+    ...Page
+  }
+}

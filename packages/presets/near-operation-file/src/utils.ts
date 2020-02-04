@@ -1,5 +1,5 @@
 import { parse, dirname, relative, join, isAbsolute } from 'path';
-import { DocumentNode, visit, FragmentSpreadNode, FragmentDefinitionNode } from 'graphql';
+import { DocumentNode, visit, FragmentSpreadNode, FragmentDefinitionNode, isCompositeType } from 'graphql';
 import { FragmentRegistry } from './fragment-resolver';
 
 export function defineFilepathSubfolder(baseFilePath: string, folder: string) {
@@ -26,7 +26,16 @@ export function extractExternalFragmentsInUse(
   ignoreList: Set<string> = new Set(),
   level = 0
 ): { [fragmentName: string]: number } {
+  console.log('C============', level, documentNode);
   // First, take all fragments definition from the current file, and mark them as ignored
+
+  // if (level === 0) {
+  //   visit(documentNode, {
+  //     enter(node, key, parent, path, ancestors) {
+  //       console.log('Key', node);
+  //     },
+  //   });
+  // }
   visit(documentNode, {
     enter: {
       FragmentDefinition: (node: FragmentDefinitionNode) => {
@@ -36,13 +45,19 @@ export function extractExternalFragmentsInUse(
   });
 
   // Then, look for all used fragments in this document
+
   visit(documentNode, {
     enter: {
       FragmentSpread: (node: FragmentSpreadNode) => {
+        console.log('^^', node.name.value, level);
         if (!ignoreList.has(node.name.value)) {
-          result[node.name.value] = level;
+          console.log(level, '====T', node.name.value);
+          if (result[node.name.value] === undefined) {
+            result[node.name.value] = level;
+          }
 
           if (fragmentNameToFile[node.name.value]) {
+            console.log('************To file', node.name.value);
             extractExternalFragmentsInUse(fragmentNameToFile[node.name.value].node, fragmentNameToFile, result, ignoreList, level + 1);
           }
         }

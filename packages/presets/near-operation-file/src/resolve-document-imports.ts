@@ -60,7 +60,7 @@ export default function resolveDocumentImportStatements<T>(presetOptions: Types.
     const generatedFilePath = generateFilePath(documentFile.location);
 
     const { externalFragments, fragmentImportStatements: importStatements } = resolveFragments(generatedFilePath, documentFile.document);
-
+    console.log('=====RD', externalFragments, importStatements);
     if (
       isUsingTypes(
         documentFile.document,

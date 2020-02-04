@@ -1,0 +1,19 @@
+schema {
+  query: Query
+}
+
+type Query {
+  list: [Book]
+  pages: [Page]
+}
+
+type Book {
+  id: ID!
+  title: String!
+  pages: [Page!]!
+}
+
+type Page {
+  id: ID!
+  number: Int!
+}

@@ -1,0 +1,12 @@
+fragment Page on Page {
+  id
+  number
+}
+
+fragment Book on Book {
+  id
+  title
+  pages {
+    ...Page
+  }
+}

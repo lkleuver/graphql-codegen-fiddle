@@ -32,7 +32,7 @@ function buildFragmentRegistry({ fragmentSuffix, generateFilePath }: DocumentImp
         baseVisitor.convertName(name, {
           useTypesPrefix: true,
           suffix: suffix,
-        }),
+        })
       );
     } else if (possbileTypes.length !== 0) {
       possbileTypes.forEach(typeName => {
@@ -51,7 +51,7 @@ function buildFragmentRegistry({ fragmentSuffix, generateFilePath }: DocumentImp
   const duplicateFragmentNames: string[] = [];
   const registry = documents.reduce((prev: FragmentRegistry, documentRecord) => {
     const fragments: FragmentDefinitionNode[] = documentRecord.document.definitions.filter(d => d.kind === Kind.FRAGMENT_DEFINITION) as FragmentDefinitionNode[];
-
+    console.log('Fragments', fragments);
     if (fragments.length > 0) {
       for (const fragment of fragments) {
         const schemaType = schemaObject.getType(fragment.typeCondition.name.value);
@@ -71,11 +71,11 @@ function buildFragmentRegistry({ fragmentSuffix, generateFilePath }: DocumentImp
         if (prev[fragment.name.value] && print(fragment) !== print(prev[fragment.name.value].node)) {
           duplicateFragmentNames.push(fragment.name.value);
         }
-
+        console.log('=====loop', importNames);
         prev[fragment.name.value] = { filePath, importNames, onType: fragment.typeCondition.name.value, node: fragment };
       }
     }
-
+    //console.log('from', prev);
     return prev;
   }, {} as FragmentRegistry);
 
@@ -96,13 +96,14 @@ export default function buildFragmentResolver<T>(collectorOptions: DocumentImpor
 
   function resolveFragments(generatedFilePath: string, documentFileContent: DocumentNode) {
     const fragmentsInUse = extractExternalFragmentsInUse(documentFileContent, fragmentRegistry);
-
+    console.log('+++', fragmentsInUse);
     const externalFragments: LoadedFragment<{ level: number }>[] = [];
     // fragment files to import names
     const fragmentFileImports: { [fragmentFile: string]: Set<string> } = {};
     for (const fragmentName of Object.keys(fragmentsInUse)) {
       const level = fragmentsInUse[fragmentName];
       const fragmentDetails = fragmentRegistry[fragmentName];
+
       if (fragmentDetails) {
         // add top level references to the import object
         // we don't checkf or global namespace because the calling config can do so
@@ -127,6 +128,8 @@ export default function buildFragmentResolver<T>(collectorOptions: DocumentImpor
         });
       }
     }
+
+    console.log('===BF', fragmentFileImports);
     return {
       externalFragments,
       fragmentImportStatements: Object.entries(fragmentFileImports).map(([fragmentsFilePath, importNames]) =>

@@ -148,8 +148,10 @@ export const preset: Types.OutputPreset<NearOperationFileConfig> = {
       },
       fragmentSuffix: 'Fragment',
       generateImportStatement({ relativeOutputPath, importSource, baseOutputDir }) {
+        console.log('=====Names', importSource.names);
         const importPath = resolveImportPath(baseOutputDir, relativeOutputPath, importSource.path);
         const importNames = importSource.names && importSource.names.length ? `{ ${importSource.names.join(', ')} }` : '*';
+        console.log('=====Found', importNames);
         const importAlias = importSource.namespace ? ` as ${importSource.namespace}` : '';
         return `import ${importNames}${importAlias} from '${importPath}';${importAlias ? '\n' : ''}`;
       },
